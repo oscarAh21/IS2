@@ -1,5 +1,28 @@
 # Especificación de Requisitos — Gestión de Juegos de Mesa
 
+## 0. Acuerdos
+A partir de los acuerdos con el cliente, se desarrollan los requisitos del sistema.
+| ID | Pregunta o incertidumbre | Respuesta y fecha | Criterio de aceptación |
+| --- | --- | --- | --- |
+| A-01 | ¿Qué representa cada registro? | Cada juego es una entidad independiente. Pueden repetirse nombres. 24/11/2026 | Cada juego tiene un identificador único. |
+| A-02 | ¿Qué estados existen? | Disponible, Dañado, Jugado, Completo y Prestado. 24/11/2026 | Se aceptan los cinco estados. |
+| A-03 | ¿Hay transiciones prohibidas? | No existen transiciones prohibidas. 24/11/2026 | Se permite cambiar a cualquiera de los cinco estados. |
+| A-04 | ¿Qué contiene el catálogo? | 50 juegos cargados desde CSV. 24/11/2026 | Se cargan los registros iniciales. |
+| A-05 | ¿Cómo se representa la duración? | Mediante duración mínima y máxima. 24/11/2026 | 60 se representa como 60-60 y 30-60 como 30-60. |
+| A-06 | ¿Cómo se representa la valoración? | Entero de 1 a 5 o sin valorar. 24/11/2026 | Se acepta ausencia de valoración o un entero válido. |
+| A-07 | ¿Qué validaciones se aplican? | Campos obligatorios, año válido, jugadores coherentes, valoración y duración válidas. 24/11/2026 | Se rechazan entradas incorrectas. |
+| A-08 | ¿Dónde se guardan los juegos? | En CSV, conservando los 50 registros iniciales. Con catálogo fijo. 24/11/2026 | Los cambios permanecen después de reiniciar. |
+| A-09 | ¿Qué información contiene una partida? | Juego, participantes, ganador opcional y fecha. 24/11/2026 | Se registra juego, participantes, ganador opcional y fecha. |
+| A-10 | ¿Cómo se consulta un juego? | Por nombre y coincidencia exacta. 24/11/2026. 24/11/2026 | Se devuelve el resultado correspondiente o se informa de que no existe. |
+| A-11 | ¿Qué debe ocurrir ante una consulta inexistente? | Informar de que no se ha encontrado. 24/11/2026 | Se muestra el mensaje correspondiente. |
+| A-12 | ¿Puede haber copias de un juego? | Sí. 24/11/2026 | Para manejar como entidades distintas, los identificadores deben ser únicos. Se rechaza un identificador duplicado. 24/11/2026 |
+| A-13 | ¿Cómo se gestionan los campos vacíos y formatos incorrectos? | No se permiten campos vacíos y se informa de formatos incorrectos. 24/11/2026 | La operación se rechaza con un mensaje de error. |
+| A-14 | ¿Qué resultado se muestra al usuario? | Mensaje de éxito o error. 24/11/2026 | Cada operación informa de su resultado. |
+| A-15 | ¿Qué información debe incluir el historial? | Partidas jugadas, juegos jugados durante el último año y partidas por juego. 24/11/2026 | Deben comprobarse las consultas de partidas por juego y juegos jugados durante el último año. |
+| A-16 | ¿Se registra el estado anterior y nuevo? | No. 24/11/2026 | El historial solicitado es de partidas, no un historial de cambios de estado. |
+| A-17 | ¿Se registra fecha y hora? | Se registra la fecha. | Cada partida almacena su fecha. |
+| A-18 | Estado inicial de los juegos | Todos los juegos comenzarán con el estado Disponible. | Al registrar o cargar un juego en el sistema, su estado inicial será automáticamente Disponible, sin que el usuario tenga que seleccionarlo manualmente. |
+
 ## 1. Descripción del sistema
 
 La aplicación **Gestión de Juegos de Mesa** es un sistema de escritorio desarrollado en Java 21 con interfaz gráfica Java Swing y persistencia local en archivos CSV. Permite gestionar una colección doméstica fija de 50 juegos de mesa: consultar el catálogo, buscar y filtrar juegos, controlar su estado, asignar valoraciones personales y llevar un registro histórico de partidas.
@@ -55,16 +78,16 @@ La aplicación **Gestión de Juegos de Mesa** es un sistema de escritorio desarr
 Permitir filtrar los juegos mediante criterios independientes seleccionables:
 - **RF-04.1:** Filtrar por nombre (coincidencia parcial insensible a mayúsculas/minúsculas).
 - **RF-04.2:** Filtrar por valoración exacta (1 a 5) o por ausencia de valoración (`Sin valoración`).
-- **RF-04.3 (Actualizado):** Filtrar por número mínimo de jugadores (`juego.minJugadores >= valor`), exigiendo un entero estrictamente mayor que 0 (se rechazan 0 y negativos), validado tanto al introducir el valor como al ejecutar el filtrado.
-- **RF-04.4 (Actualizado):** Filtrar por número máximo de jugadores (`juego.maxJugadores <= valor`), exigiendo un entero estrictamente mayor que 0 (se rechazan 0 y negativos), validado tanto al introducir el valor como al ejecutar el filtrado.
-- **RF-04.5 (Nuevo):** Selección dinámica del criterio de filtrado en la interfaz Swing: el usuario elige qué filtro desea aplicar y la interfaz muestra únicamente los campos de ese criterio, ocultando los demás y permitiendo cambiar de criterio sin abandonar la pantalla.
+- **RF-04.3:** Filtrar por número mínimo de jugadores (`juego.minJugadores >= valor`), exigiendo un entero estrictamente mayor que 0 (se rechazan 0 y negativos), validado tanto al introducir el valor como al ejecutar el filtrado.
+- **RF-04.4:** Filtrar por número máximo de jugadores (`juego.maxJugadores <= valor`), exigiendo un entero estrictamente mayor que 0 (se rechazan 0 y negativos), validado tanto al introducir el valor como al ejecutar el filtrado.
+- **RF-04.5:** Selección dinámica del criterio de filtrado: el usuario elige qué filtro desea aplicar y la interfaz muestra únicamente los campos de ese criterio, ocultando los demás y permitiendo cambiar de criterio sin abandonar la pantalla.
 
 ### RF-05. Gestión de partidas
-- **RF-05.1 (Actualizado):** Registrar una partida asociada a un juego del catálogo con número de participantes y fecha, validando que el número de participantes se encuentre dentro del rango real permitido por el juego seleccionado (`minJugadores <= participantes <= maxJugadores`, ambos inclusive).
+- **RF-05.1:** Registrar una partida asociada a un juego del catálogo con número de participantes y fecha, validando que el número de participantes se encuentre dentro del rango real permitido por el juego seleccionado (`minJugadores <= participantes <= maxJugadores`, ambos inclusive).
 - **RF-05.2:** Permitir registrar ganador con su tipo (`Individual` o `Equipo`), o registrar expresamente que la partida no tuvo ganador.
 - **RF-05.3:** Consultar el historial de partidas de un juego concreto.
 - **RF-05.4:** Consultar los juegos distintos que se han jugado durante el último año.
-- **RF-05.5 (Nuevo):** Mostrar automáticamente la información del juego seleccionado en el `JComboBox` del formulario de registro de partidas (como mínimo nombre del juego, número mínimo de jugadores y número máximo de jugadores), actualizándose automáticamente al cambiar la selección.
+- **RF-05.5:** Mostrar automáticamente la información del juego seleccionado en el `JComboBox` del formulario de registro de partidas (como mínimo nombre del juego, número mínimo de jugadores y número máximo de jugadores), actualizándose automáticamente al cambiar la selección.
 
 ### Criterios de aceptación (requisitos modificados y nuevos)
 
@@ -99,31 +122,17 @@ Permitir filtrar los juegos mediante criterios independientes seleccionables:
 4. **Transiciones de estado:** Cualquier estado puede cambiar a cualquiera de los cinco estados permitidos.
 5. **Campos obligatorios:** Título, editorial, estado y fecha de partida no pueden estar vacíos ni ser nulos.
 6. **Año de lanzamiento:** Entero positivo y no posterior al año actual.
-7. **Número de jugadores en entidad `Juego`:** Mínimo y máximo enteros `>= 0`, con `maxJugadores >= minJugadores` (según especificación inicial del dominio).
-8. **Número de jugadores en filtros (Actualizado):** Los valores mínimo y máximo introducidos en los filtros de jugadores deben ser enteros estrictamente mayores que cero (`> 0`); no se permite `0` ni valores negativos.
-9. **Duración:** Mínima y máxima enteras `> 0`, con `duracionMaxima >= duracionMinima`. Si el CSV original contiene un valor único (p. ej. `60`), se almacena `min = 60, max = 60`; si es un intervalo (p. ej. `30-60`), se almacena `min = 30, max = 60`.
-10. **Valoración:** Nula (sin valoración) o entero en el intervalo `[1, 5]`.
-11. **Participantes en partida (Actualizado):** Número entero positivo comprendido dentro del rango real del juego seleccionado (`juego.minJugadores <= participantes <= juego.maxJugadores`), aceptando exactamente los límites mínimo y máximo.
-12. **Coherencia de ganador:** Si hay ganador (texto no vacío), el tipo de ganador (`Individual` o `Equipo`) es obligatorio. Si no hay ganador, tanto el ganador como el tipo deben quedar vacíos (`null`).
-13. **Fecha de partida:** Fecha válida en formato ISO `AAAA-MM-DD`, no posterior a la fecha actual.
-14. **Integridad CSV:** Se valida el número de columnas, el cierre de comillas y el formato de cada campo al leer CSV; cualquier error lanza `ValidacionException` o `PersistenciaException` sin corromper los archivos.
-
-### Ambigüedades y posibles contradicciones documentadas
-- **Filtros de jugadores (`> 0`) frente a entidad `Juego` (`>= 0`):** El enunciado inicial permitía `>= 0` en el número de jugadores del modelo `Juego`, mientras que la modificación de filtros exige valores estrictamente `> 0`. Se mantiene `>= 0` en `Juego` para no romper la regla original del catálogo y se aplica `> 0` en los filtros; conviene confirmar si el modelo `Juego` también debe pasar a `> 0`.
-- **Criterio de filtrado por mínimo/máximo de jugadores (RF-04):** Se mantiene la interpretación de cota (`minJugadores >= valor` y `maxJugadores <= valor`), documentada en el manual de usuario.
-- **Nombre en RF-01 frente a RF-04:** RF-01 realiza búsqueda por **nombre exacto** (insensible a mayúsculas/minúsculas), mientras que el filtro por nombre de RF-04 realiza coincidencia parcial (contiene texto), lo que incluye también las coincidencias exactas.
+7. **Número de jugadores:** Los valores mínimo y máximo de jugadores deben ser enteros estrictamente mayores que cero (`> 0`); no se permite `0` ni valores negativos.
+8. **Duración:** Mínima y máxima enteras `> 0`, con `duracionMaxima >= duracionMinima`. Si el CSV original contiene un valor único (p. ej. `60`), se almacena `min = 60, max = 60`; si es un intervalo (p. ej. `30-60`), se almacena `min = 30, max = 60`.
+9. **Valoración:** Nula (sin valoración) o entero en el intervalo `[1, 5]`.
+10. **Participantes en partida:** Número entero positivo comprendido dentro del rango real del juego seleccionado (`juego.minJugadores <= participantes <= juego.maxJugadores`), aceptando exactamente los límites mínimo y máximo.
+11. **Coherencia de ganador:** Si hay ganador (texto no vacío), el tipo de ganador (`Individual` o `Equipo`) es obligatorio. Si no hay ganador, tanto el ganador como el tipo deben quedar vacíos (`null`).
+12. **Fecha de partida:** Fecha válida en formato ISO `AAAA-MM-DD`, no posterior a la fecha actual.
+13. **Integridad CSV:** Se valida el número de columnas, el cierre de comillas y el formato de cada campo al leer CSV; cualquier error lanza `ValidacionException` o `PersistenciaException` sin corromper los archivos.
 
 ---
 
-## 7. Restricciones técnicas
-
-- Prohibido el uso de HTML, CSS, JavaScript, TypeScript, frameworks web o servidores HTTP.
-- La capa de presentación no contiene lógica de negocio ni accede directamente a archivos CSV.
-- La capa de dominio no depende de ninguna otra capa.
-
----
-
-## 8. Matriz de trazabilidad
+## 7. Matriz de trazabilidad
 
 | Requisito | Servicio de Aplicación | Interfaz Swing | Persistencia | Pruebas Unitarias |
 | :--- | :--- | :--- | :--- | :--- |
